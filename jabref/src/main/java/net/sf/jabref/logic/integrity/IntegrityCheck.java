@@ -269,24 +269,41 @@ public class IntegrityCheck {
     private static class YearChecker implements Checker {
 
         private static final Predicate<String> CONTAINS_FOUR_DIGIT = Pattern.compile("([^0-9]|^)[0-9]{4}([^0-9]|$)").asPredicate();
-
+        List<IntegrityMessage> results = new ArrayList<>();
         /**
          * Checks, if the number String contains a four digit year
          */
         @Override
         public List<IntegrityMessage> check(BibEntry entry) {
             Optional<String> value = entry.getFieldOptional("year");
+            int tagError = 0;
             if (!value.isPresent()) {
                 return Collections.emptyList();
             }
 
             if (!CONTAINS_FOUR_DIGIT.test(value.get().trim())) {
-                return Collections.singletonList(new IntegrityMessage(Localization.lang("should contain a four digit number"), entry, "year"));
+                /* return Collections.singletonList(*/
+                results.add(
+                        new IntegrityMessage(Localization.lang("should contain a four digit number"), entry, "year"));
+                tagError = 1;
+            }
+
+            /*String yearValue = value.get().trim();*/
+            int yearInt = Integer.parseInt(value.get().trim());
+
+            if (yearInt < 0) {
+                results.add(
+                        new IntegrityMessage(Localization.lang("ano negativo não permitido"), entry, "year"));
+                tagError = 1;
+            }
+            if (tagError == 1) {
+                return results;
             }
 
             return Collections.emptyList();
         }
     }
+
 
     /**
      * From BibTex manual:
@@ -338,6 +355,7 @@ public class IntegrityCheck {
         /**
          * Checks, if there is an even number of unescaped #
          */
+
         @Override
         public List<IntegrityMessage> check(BibEntry entry) {
             List<IntegrityMessage> results = new ArrayList<>();
