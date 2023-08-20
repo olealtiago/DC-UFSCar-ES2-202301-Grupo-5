@@ -1112,7 +1112,10 @@ public class EntryEditor extends JPanel implements VetoableChangeListener, Entry
                     warnEmptyBibtexkey();
                 } else {
                     if (isDuplicate) {
+                        JOptionPane.showMessageDialog(frame, Localization.lang("Error BibTex key is duplicate"),
+                                Localization.lang("Error setting field"), JOptionPane.ERROR_MESSAGE);
                         warnDuplicateBibtexkey();
+                        return;
                     } else {
                         panel.output(Localization.lang("BibTeX key is unique."));
                     }

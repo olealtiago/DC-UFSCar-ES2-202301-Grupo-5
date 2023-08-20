@@ -40,7 +40,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -464,7 +463,7 @@ public class FindUnlinkedFilesDialog extends JDialog {
     private void expandTree(JTree currentTree, TreePath parent, boolean expand) {
         TreeNode node = (TreeNode) parent.getLastPathComponent();
         if (node.getChildCount() >= 0) {
-            for (Enumeration<TreeNode> e = node.children(); e.hasMoreElements();) {
+            for (Enumeration<?> e = node.children(); e.hasMoreElements();) {
                 TreePath path = parent.pathByAddingChild(e.nextElement());
                 expandTree(currentTree, path, expand);
             }
@@ -475,7 +474,6 @@ public class FindUnlinkedFilesDialog extends JDialog {
             currentTree.collapsePath(parent);
         }
     }
-
     /**
      * Starts the search of unlinked files according to the current dialog
      * state. <br>
@@ -689,14 +687,18 @@ public class FindUnlinkedFilesDialog extends JDialog {
      */
     private List<File> getFileListFromNode(CheckableTreeNode node) {
         List<File> filesList = new ArrayList<>();
-        Enumeration<CheckableTreeNode> children = node.depthFirstEnumeration();
+        Enumeration<?> children = node.depthFirstEnumeration(); // Correção: Usar um tipo curinga (?)
         List<CheckableTreeNode> nodesToRemove = new ArrayList<>();
-        for (CheckableTreeNode child : Collections.list(children)) {
-            if (child.isLeaf() && child.isSelected()) {
-                File nodeFile = ((FileNodeWrapper) child.getUserObject()).file;
-                if ((nodeFile != null) && nodeFile.isFile()) {
-                    filesList.add(nodeFile);
-                    nodesToRemove.add(child);
+        while (children.hasMoreElements()) {
+            Object child = children.nextElement();
+            if (child instanceof CheckableTreeNode) {
+                CheckableTreeNode checkableChild = (CheckableTreeNode) child;
+                if (checkableChild.isLeaf() && checkableChild.isSelected()) {
+                    File nodeFile = ((FileNodeWrapper) checkableChild.getUserObject()).file;
+                    if ((nodeFile != null) && nodeFile.isFile()) {
+                        filesList.add(nodeFile);
+                        nodesToRemove.add(checkableChild);
+                    }
                 }
             }
         }
@@ -1131,12 +1133,16 @@ public class FindUnlinkedFilesDialog extends JDialog {
 
         public void setSelected(boolean bSelected) {
             isSelected = bSelected;
-            Enumeration<CheckableTreeNode> tmpChildren = this.children();
-            for (CheckableTreeNode child : Collections.list(tmpChildren)) {
-                child.setSelected(bSelected);
+            Enumeration<?> tmpChildren = this.children();
+            while (tmpChildren.hasMoreElements()) {
+                Object child = tmpChildren.nextElement();
+                if (child instanceof CheckableTreeNode) {
+                    CheckableTreeNode checkableChild = (CheckableTreeNode) child;
+                    checkableChild.setSelected(bSelected);
+                }
             }
-
         }
+
 
         public boolean isSelected() {
             return isSelected;
