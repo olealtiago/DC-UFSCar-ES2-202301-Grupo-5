@@ -1076,6 +1076,20 @@ public class EntryEditor extends JPanel implements VetoableChangeListener, Entry
             putValue(Action.SHORT_DESCRIPTION, "Store field value");
         }
 
+        //Verifica se o tamanho e menor que 2 caracteres ou nao comeca com letra
+        private boolean isValidNewValue(String newValue) {
+            if ((newValue == null) || (newValue.length() < 2)) {
+                return false;
+            }
+
+            char firstChar = newValue.charAt(0);
+            if (!Character.isLetter(firstChar)) {
+                return false;
+            }
+
+            return true;
+        }
+
         @Override
         public void actionPerformed(ActionEvent event) {
             boolean movingAway = movingToDifferentEntry;
@@ -1095,6 +1109,15 @@ public class EntryEditor extends JPanel implements VetoableChangeListener, Entry
                     return; // No change.
                 }
 
+                //chama a funcao para chegar se e valido o novo valor
+                if (!isValidNewValue(newValue)) {
+                    JOptionPane.showMessageDialog(frame, Localization.lang(
+                            "Entrada necessita ter 2 caracteres e iniciar com letra"),
+                            Localization.lang("Error setting field"), JOptionPane.ERROR_MESSAGE);
+                    textField.setInvalidBackgroundColor();
+                    return;
+                }
+
                 // Make sure the key is legal:
                 String cleaned = LabelPatternUtil.checkLegalKey(newValue);
                 if ((cleaned == null) || cleaned.equals(newValue)) {
@@ -1112,7 +1135,10 @@ public class EntryEditor extends JPanel implements VetoableChangeListener, Entry
                     warnEmptyBibtexkey();
                 } else {
                     if (isDuplicate) {
+                        JOptionPane.showMessageDialog(frame, Localization.lang("Error BibTex key is duplicate"),
+                                Localization.lang("Error setting field"), JOptionPane.ERROR_MESSAGE);
                         warnDuplicateBibtexkey();
+                        return;
                     } else {
                         panel.output(Localization.lang("BibTeX key is unique."));
                     }
