@@ -292,6 +292,11 @@ public class IntegrityCheck {
                 tagError = 1;
             }
 
+            if (value.get().trim().matches(".*[a-zA-Z]+.*")) {
+                return Collections.singletonList(
+                        new IntegrityMessage(Localization.lang("ano não pode conter letras"), entry, "year"));
+            }
+
             /*String yearValue = value.get().trim();*/
             int yearInt = Integer.parseInt(value.get().trim());
 
