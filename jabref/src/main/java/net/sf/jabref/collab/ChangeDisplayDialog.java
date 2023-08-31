@@ -17,7 +17,6 @@ package net.sf.jabref.collab;
 
 import java.awt.BorderLayout;
 import java.awt.Insets;
-import java.util.Collections;
 import java.util.Enumeration;
 
 import javax.swing.BorderFactory;
@@ -100,16 +99,20 @@ class ChangeDisplayDialog extends JDialog implements TreeSelectionListener {
             // Perform all accepted changes:
             // Store all edits in an Undoable object:
             NamedCompound ce = new NamedCompound(Localization.lang("Merged external changes"));
-            Enumeration<Change> enumer = root.children();
+            Enumeration<?> enumer = root.children();
             boolean anyDisabled = false;
-            for (Change c : Collections.list(enumer)) {
-                boolean allAccepted = false;
-                if (c.isAcceptable() && c.isAccepted()) {
-                    allAccepted = c.makeChange(panel, localSecondary, ce);
-                }
+            while (enumer.hasMoreElements()) {
+                Object element = enumer.nextElement();
+                if (element instanceof Change) {
+                    Change c = (Change) element;
+                    boolean allAccepted = false;
+                    if (c.isAcceptable() && c.isAccepted()) {
+                        allAccepted = c.makeChange(panel, localSecondary, ce);
+                    }
 
-                if (!allAccepted) {
-                    anyDisabled = true;
+                    if (!allAccepted) {
+                        anyDisabled = true;
+                    }
                 }
             }
             ce.end();
@@ -121,6 +124,7 @@ class ChangeDisplayDialog extends JDialog implements TreeSelectionListener {
             dispose();
             okPressed = true;
         });
+
 
         pack();
     }

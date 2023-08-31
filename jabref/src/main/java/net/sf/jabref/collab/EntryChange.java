@@ -15,7 +15,6 @@
 */
 package net.sf.jabref.collab;
 
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.Set;
 import java.util.TreeSet;
@@ -86,12 +85,16 @@ class EntryChange extends Change {
     public boolean makeChange(BasePanel panel, BibDatabase secondary, NamedCompound undoEdit) {
         boolean allAccepted = true;
 
-        Enumeration<Change> e = children();
-        for (Change c : Collections.list(e)) {
-            if (c.isAcceptable() && c.isAccepted()) {
-                c.makeChange(panel, secondary, undoEdit);
-            } else {
-                allAccepted = false;
+        Enumeration<?> e = children();
+        while (e.hasMoreElements()) {
+            Object element = e.nextElement();
+            if (element instanceof Change) {
+                Change c = (Change) element;
+                if (c.isAcceptable() && c.isAccepted()) {
+                    c.makeChange(panel, secondary, undoEdit);
+                } else {
+                    allAccepted = false;
+                }
             }
         }
 
@@ -103,6 +106,7 @@ class EntryChange extends Change {
 
         return allAccepted;
     }
+
 
     @Override
     public JComponent description() {

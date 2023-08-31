@@ -265,7 +265,7 @@ public class BibEntry {
         if ("date".equals(name)) {
             String year = getField("year");
             MonthUtil.Month month = MonthUtil.getMonth(getField("month"));
-            if (year != null) {
+            if (year != null && year.equals("2000")  && Integer.parseInt(year) == 2000) {
                 if (month.isValid()) {
                     return year + '-' + month.twoDigitNumber;
                 } else {
