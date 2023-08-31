@@ -1,6 +1,7 @@
 package net.sf.jabref.logic.integrity;
 
 import java.io.File;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -269,6 +270,7 @@ public class IntegrityCheck {
     private static class YearChecker implements Checker {
 
         private static final Predicate<String> CONTAINS_FOUR_DIGIT = Pattern.compile("([^0-9]|^)[0-9]{4}([^0-9]|$)").asPredicate();
+        int anoAtual = LocalDate.now().getYear();
 
         /**
          * Checks, if the number String contains a four digit year
@@ -282,6 +284,18 @@ public class IntegrityCheck {
 
             if (!CONTAINS_FOUR_DIGIT.test(value.get().trim())) {
                 return Collections.singletonList(new IntegrityMessage(Localization.lang("should contain a four digit number"), entry, "year"));
+            }
+
+            // verifica se o ano é maior que o atual
+            if (Integer.parseInt(value.get().trim()) > anoAtual) {
+                return Collections.singletonList(new IntegrityMessage(
+                        Localization.lang("cannot be greater than the current year"), entry, "year"));
+            }
+
+            //verifica se o ano é positivo
+            if (Integer.parseInt(value.get().trim()) < 0) {
+                return Collections.singletonList(
+                        new IntegrityMessage(Localization.lang("the year needs to be positive"), entry, "year"));
             }
 
             return Collections.emptyList();
